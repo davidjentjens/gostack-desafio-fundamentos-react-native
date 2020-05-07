@@ -40,13 +40,13 @@ const CartProvider: React.FC = ({ children }) => {
     loadProducts();
   }, []);
 
-  /* useEffect(() => {
+  useEffect(() => {
     async function saveCart(): Promise<void> {
       await AsyncStorage.setItem('products', JSON.stringify(products));
     }
 
     saveCart();
-  }, [products]); */
+  }, [products]);
 
   const increment = useCallback(
     async id => {
@@ -56,7 +56,7 @@ const CartProvider: React.FC = ({ children }) => {
         throw Error('Produto não encontrado!');
       }
 
-      const newProducts = products;
+      const newProducts = [...products];
 
       newProducts[productIndex] = {
         ...newProducts[productIndex],
@@ -76,15 +76,16 @@ const CartProvider: React.FC = ({ children }) => {
         throw Error('Produto não encontrado!');
       }
 
-      const newProducts = products;
+      const newProducts = [...products];
 
       newProducts[productIndex] = {
         ...newProducts[productIndex],
         quantity: newProducts[productIndex].quantity - 1,
       };
 
-      if (newProducts[productIndex].quantity === 0) {
-        newProducts.slice(productIndex);
+      // TODO: Investigar erro de formatação
+      if (newProducts[productIndex].quantity < 1) {
+        newProducts.splice(productIndex, 1);
       }
 
       setProducts(newProducts);

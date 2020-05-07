@@ -47,15 +47,20 @@ const Cart: React.FC = () => {
   }
 
   const cartTotal = useMemo(() => {
-    // TODO RETURN THE SUM OF THE QUANTITY OF THE PRODUCTS IN THE CART
+    const totalPrice = products.reduce(
+      (total, product) => total + product.price * product.quantity,
+      0,
+    );
 
-    return formatValue(0);
+    return formatValue(totalPrice);
   }, [products]);
 
   const totalItensInCart = useMemo(() => {
-    // TODO RETURN THE SUM OF THE QUANTITY OF THE PRODUCTS IN THE CART
-
-    return 0;
+    const totalQuantity = products.reduce(
+      (total, product) => total + product.quantity,
+      0,
+    );
+    return totalQuantity;
   }, [products]);
 
   return (
@@ -95,10 +100,20 @@ const Cart: React.FC = () => {
                   <FeatherIcon name="plus" color="#E83F5B" size={16} />
                 </ActionButton>
                 <ActionButton
+                  disabled={item.quantity <= 1}
+                  style={
+                    item.quantity <= 1
+                      ? { backgroundColor: 'rgba(211,211,211, 0.4)' }
+                      : { backgroundColor: 'rgba(232, 63, 91, 0.1)' }
+                  }
                   testID={`decrement-${item.id}`}
                   onPress={() => handleDecrement(item.id)}
                 >
-                  <FeatherIcon name="minus" color="#E83F5B" size={16} />
+                  <FeatherIcon
+                    name="minus"
+                    color={item.quantity <= 1 ? 'rgb(211,211,211)' : '#E83F5B'}
+                    size={16}
+                  />
                 </ActionButton>
               </ActionContainer>
             </Product>
