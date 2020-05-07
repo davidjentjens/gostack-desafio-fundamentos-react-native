@@ -30,23 +30,84 @@ const CartProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     async function loadProducts(): Promise<void> {
-      // TODO LOAD ITEMS FROM ASYNC STORAGE
+      const loadedProducts = await AsyncStorage.getItem('products');
+
+      if (loadedProducts) {
+        setProducts(JSON.parse(loadedProducts));
+      }
     }
 
     loadProducts();
   }, []);
 
-  const addToCart = useCallback(async product => {
-    // TODO ADD A NEW ITEM TO THE CART
-  }, []);
+  /* useEffect(() => {
+    async function saveCart(): Promise<void> {
+      await AsyncStorage.setItem('products', JSON.stringify(products));
+    }
 
-  const increment = useCallback(async id => {
-    // TODO INCREMENTS A PRODUCT QUANTITY IN THE CART
-  }, []);
+    saveCart();
+  }, [products]); */
 
-  const decrement = useCallback(async id => {
-    // TODO DECREMENTS A PRODUCT QUANTITY IN THE CART
-  }, []);
+  const increment = useCallback(
+    async id => {
+      const productIndex = products.findIndex(product => product.id === id);
+
+      if (productIndex === -1) {
+        throw Error('Produto não encontrado!');
+      }
+
+      const newProducts = products;
+
+      newProducts[productIndex] = {
+        ...newProducts[productIndex],
+        quantity: newProducts[productIndex].quantity + 1,
+      };
+
+      setProducts(newProducts);
+    },
+    [products],
+  );
+
+  const decrement = useCallback(
+    async id => {
+      const productIndex = products.findIndex(product => product.id === id);
+
+      if (productIndex === -1) {
+        throw Error('Produto não encontrado!');
+      }
+
+      const newProducts = products;
+
+      newProducts[productIndex] = {
+        ...newProducts[productIndex],
+        quantity: newProducts[productIndex].quantity - 1,
+      };
+
+      if (newProducts[productIndex].quantity === 0) {
+        newProducts.slice(productIndex);
+      }
+
+      setProducts(newProducts);
+    },
+    [products],
+  );
+
+  const addToCart = useCallback(
+    async product => {
+      const duplicateProduct = products.find(
+        iterationProduct => iterationProduct.id === product.id,
+      );
+
+      if (duplicateProduct) {
+        increment(duplicateProduct.id);
+        return;
+      }
+
+      product.quantity = 1;
+      setProducts([...products, product]);
+    },
+    [products, increment],
+  );
 
   const value = React.useMemo(
     () => ({ addToCart, increment, decrement, products }),
